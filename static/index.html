@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ScamGuard-Z • IBM LinuxONE Simulation Console</title>
+  <style>
+    :root {
+      --ibm-blue: #0f62fe;
+      --ibm-navy: #001141;
+      --ibm-dark: #161616;
+      --ibm-gray-10: #f4f4f4;
+      --ibm-gray-20: #e0e0e0;
+      --ibm-gray-70: #525252;
+      --success: #198038;
+      --warning: #f1c21b;
+      --danger: #da1e28;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      background: #f4f7fb;
+      color: var(--ibm-dark);
+      line-height: 1.5;
+    }
+
+    /* Header */
+    header {
+      background: var(--ibm-navy);
+      color: #ffffff;
+      padding: 14px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 3px solid var(--ibm-blue);
+    }
+    .brand-title {
+      font-size: 18pt;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-title span {
+      color: #78a9ff;
+    }
+    .brand-tag {
+      font-size: 8.5pt;
+      background: rgba(255, 255, 255, 0.12);
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-weight: 400;
+      color: #d0e2ff;
+    }
+    .platform-pill {
+      background: rgba(15, 98, 254, 0.25);
+      border: 1px solid #4589ff;
+      color: #ffffff;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 9pt;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .pulse-dot {
+      width: 9px;
+      height: 9px;
+      background: #42be65;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #42be65;
+      animation: pulse 1.8s infinite;
+    }
+    @keyframes pulse {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.2); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* Container */
+    .container {
+      max-width: 1240px;
+      margin: 24px auto;
+      padding: 0 20px;
+    }
+
+    /* Preset Scenarios Ribbon */
+    .scenario-ribbon {
+      background: #ffffff;
+      border: 1px solid var(--ibm-gray-20);
+      border-radius: 8px;
+      padding: 14px 20px;
+      margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+    .scenario-label {
+      font-weight: 700;
+      color: var(--ibm-navy);
+      font-size: 9.5pt;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .btn-scenario {
+      background: #edf5ff;
+      border: 1px solid #d0e2ff;
+      color: #0043ce;
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-size: 9pt;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-scenario:hover {
+      background: var(--ibm-blue);
+      color: #ffffff;
+      border-color: var(--ibm-blue);
+    }
+    .btn-scenario.active-scenario {
+      background: var(--ibm-navy);
+      color: #ffffff;
+      border-color: var(--ibm-navy);
+    }
+
+    /* Main Grid */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.25fr;
+      gap: 24px;
+    }
+
+    /* Cards */
+    .panel-card {
+      background: #ffffff;
+      border: 1px solid var(--ibm-gray-20);
+      border-radius: 8px;
+      padding: 22px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .panel-title {
+      font-size: 13pt;
+      font-weight: 700;
+      color: var(--ibm-navy);
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--ibm-blue);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Form Controls */
+    .form-group {
+      margin-bottom: 14px;
+    }
+    label {
+      display: block;
+      font-size: 8.8pt;
+      font-weight: 600;
+      color: #393939;
+      margin-bottom: 4px;
+    }
+    .helper-text {
+      font-size: 7.8pt;
+      color: var(--ibm-gray-70);
+      margin-top: 2px;
+    }
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid #8d8d8d;
+      border-radius: 4px;
+      font-size: 10pt;
+      font-family: inherit;
+    }
+    input[type="text"]:focus, input[type="number"]:focus {
+      outline: none;
+      border-color: var(--ibm-blue);
+      box-shadow: 0 0 0 2px rgba(15, 98, 254, 0.2);
+    }
+    .btn-submit {
+      width: 100%;
+      background: var(--ibm-blue);
+      color: #ffffff;
+      border: none;
+      padding: 12px;
+      font-size: 10.5pt;
+      font-weight: 700;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background 0.2s;
+    }
+    .btn-submit:hover {
+      background: #0353e9;
+    }
+
+    /* Results Column */
+    .score-banner {
+      background: #f4f7fb;
+      border: 1px solid #d0e2ff;
+      border-radius: 8px;
+      padding: 18px;
+      text-align: center;
+      margin-bottom: 18px;
+    }
+    .score-circle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      border: 6px solid #e0e0e0;
+      margin: 10px 0;
+      font-size: 26pt;
+      font-weight: 800;
+    }
+    .tier-badge {
+      display: inline-block;
+      padding: 4px 14px;
+      border-radius: 16px;
+      font-size: 10pt;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .tier-LOW {
+      background: #defbe6;
+      color: #0e6027;
+      border-color: #42be65;
+    }
+    .tier-MEDIUM {
+      background: #fef3d6;
+      color: #8a6d3b;
+      border-color: #f1c21b;
+    }
+    .tier-HIGH {
+      background: #ffe3e3;
+      color: #a2191f;
+      border-color: #da1e28;
+    }
+
+    .factor-card {
+      background: #ffffff;
+      border: 1px solid var(--ibm-gray-20);
+      border-radius: 6px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      position: relative;
+    }
+    .factor-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 9.2pt;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .points-tag {
+      font-size: 8.5pt;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+    .points-safe {
+      background: #edf5ff;
+      color: #0043ce;
+    }
+    .points-risk {
+      background: #fff1f1;
+      color: #da1e28;
+    }
+    .progress-bar-bg {
+      background: #e0e0e0;
+      height: 6px;
+      border-radius: 3px;
+      margin: 6px 0;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      transition: width 0.4s ease;
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 17, 65, 0.65);
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      background: #ffffff;
+      border-top: 8px solid var(--danger);
+      border-radius: 8px;
+      width: 90%;
+      max-width: 600px;
+      padding: 26px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    .modal-title {
+      font-size: 14pt;
+      font-weight: 800;
+      color: #a2191f;
+      margin-bottom: 12px;
+    }
+    .checklist-box {
+      background: #fff8f8;
+      border: 1px solid #ffd7d9;
+      border-radius: 6px;
+      padding: 12px 16px;
+      margin: 14px 0;
+      font-size: 9pt;
+    }
+    .checklist-box ul {
+      margin-left: 20px;
+      margin-top: 6px;
+    }
+    .checklist-box li {
+      margin-bottom: 6px;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .btn-cancel {
+      flex: 1;
+      background: var(--danger);
+      color: #ffffff;
+      border: none;
+      padding: 12px;
+      font-size: 9.5pt;
+      font-weight: 700;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .btn-secondary {
+      flex: 1;
+      background: var(--ibm-gray-10);
+      color: var(--ibm-dark);
+      border: 1px solid var(--ibm-gray-20);
+      padding: 12px;
+      font-size: 9.5pt;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="brand-title">
+      ScamGuard-<span>Z</span>
+      <span class="brand-tag">IBM Z Datathon 2026</span>
+    </div>
+    <div class="platform-pill" id="platformBadge">
+      <span class="pulse-dot"></span>
+      <span id="platformText">IBM LinuxONE (s390x) • Active</span>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <!-- Scenario Ribbon -->
+    <div class="scenario-ribbon">
+      <span class="scenario-label">Quick Scenarios:</span>
+      <button class="btn-scenario" onclick="loadScenario('normal')">1. Routine Utility ($75)</button>
+      <button class="btn-scenario" onclick="loadScenario('borderline')">2. High-Value Car Repair ($750)</button>
+      <button class="btn-scenario active-scenario" onclick="loadScenario('coercion')">🚨 3. "Digital Arrest" Coercion Scam ($4,500)</button>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="main-grid">
+
+      <!-- Form Panel -->
+      <div class="panel-card">
+        <div class="panel-title">
+          <span>Simulated Payment Input</span>
+          <span style="font-size: 8.5pt; color: #525252; font-weight: normal;">Live REST Payload</span>
+        </div>
+
+        <form id="txForm" onsubmit="handleEvaluate(event)">
+          <div class="form-group">
+            <label>Transfer Amount ($):</label>
+            <input type="number" id="amount" step="0.01" required value="4500.00">
+            <div class="helper-text">Amount requested in current outbound payment.</div>
+          </div>
+
+          <div class="form-group">
+            <label>Historical 30-Day Average ($):</label>
+            <input type="number" id="avg_amount" step="0.01" required value="1000.00">
+            <div class="helper-text">Account baseline average payment size.</div>
+          </div>
+
+          <div class="form-group">
+            <label>Recipient Beneficiary Name:</label>
+            <input type="text" id="recipient_name" required value="Central Escrow Clearance Acct 902">
+          </div>
+
+          <div class="form-group">
+            <label>Recipient Added (Hours Ago):</label>
+            <input type="number" id="recipient_age_hours" step="0.1" required value="2.0">
+            <div class="helper-text">Hours elapsed since beneficiary was added to account.</div>
+          </div>
+
+          <div class="form-group">
+            <label>Prior Completed Transfers to Recipient:</label>
+            <input type="number" id="prior_transfers" min="0" required value="0">
+            <div class="helper-text">0 indicates an unfamiliar/first-time payee.</div>
+          </div>
+
+          <div class="form-group">
+            <label>Outbound Transfers Executed Today:</label>
+            <input type="number" id="transfers_today" min="0" required value="1">
+            <div class="helper-text">Frequency velocity in the last 24 hours.</div>
+          </div>
+
+          <div class="form-group">
+            <label>Total Available Account Balance ($):</label>
+            <input type="number" id="account_balance" step="0.01" required value="5000.00">
+            <div class="helper-text">Pre-transfer available liquid balance.</div>
+          </div>
+
+          <button type="submit" class="btn-submit" id="submitBtn">⚡ Evaluate Transaction on LinuxONE</button>
+        </form>
+      </div>
+
+      <!-- Evaluation Output Panel -->
+      <div class="panel-card">
+        <div class="panel-title">
+          <span>Real-Time Risk Assessment</span>
+          <span style="font-size: 8.5pt; color: #0043ce; font-weight: 600;">Formula: 30·S_amt + 25·S_rec + 25·S_vel + 20·S_dep</span>
+        </div>
+
+        <div class="score-banner" id="scoreBanner">
+          <div style="font-size: 9pt; font-weight: 700; color: #525252;">COMPOSITE RISK SCORE</div>
+          <div class="score-circle" id="scoreCircle" style="border-color: #da1e28; color: #da1e28;">75.0</div>
+          <div>
+            <span class="tier-badge tier-HIGH" id="tierBadge">HIGH RISK TIER</span>
+          </div>
+          <p id="actionSummary" style="font-size: 8.8pt; color: #393939; margin-top: 10px;">
+            CRITICAL SAFETY HOLD: Multiple high-risk coercion and social-engineering markers detected.
+          </p>
+        </div>
+
+        <!-- Factors Container -->
+        <div id="factorsContainer">
+          <!-- Populated by JavaScript -->
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Safety Warning Modal -->
+  <div class="modal-backdrop" id="safetyModal">
+    <div class="modal-content">
+      <div class="modal-title" id="modalTitle">🚨 Potential Coercion / Impersonation Scam Detected</div>
+      <p id="modalMessage" style="font-size: 9.5pt; color: #393939;">
+        This transfer matches behavioral patterns of telephone fraud, "digital arrest", and authority extortion.
+      </p>
+
+      <div class="checklist-box">
+        <strong>⚠️ Critical Safety Verification Questions:</strong>
+        <ul id="modalQuestions">
+          <li>Are you currently on an active telephone or video call with someone directing you to send funds?</li>
+          <li>Did a caller claim to be from law enforcement (Police/CBI/Interpol), tax authorities, or bank fraud?</li>
+          <li>Were you told this is an "urgent verification", "safe locker", or "confidential clearance"?</li>
+        </ul>
+      </div>
+
+      <div style="background: #edf5ff; border: 1px solid #d0e2ff; border-radius: 6px; padding: 10px 14px; font-size: 8.8pt; color: #002d9c;">
+        <strong>Actionable Advice:</strong> Hang up immediately. Call your bank using the phone number on the back of your debit card. Legitimate police and banks never demand urgent phone transfers.
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal(true)">🛑 Cancel Transfer & Review Safely</button>
+        <button class="btn-secondary" onclick="closeModal(false)">Dismiss & Review</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Scenarios data
+    const scenarios = {
+      normal: {
+        amount: 75.0,
+        avg_amount: 80.0,
+        recipient_name: "State Electric Utility",
+        recipient_age_hours: 720.0,
+        prior_transfers: 12,
+        transfers_today: 0,
+        account_balance: 3200.0
+      },
+      borderline: {
+        amount: 750.0,
+        avg_amount: 200.0,
+        recipient_name: "Metro Auto Body Services",
+        recipient_age_hours: 48.0,
+        prior_transfers: 1,
+        transfers_today: 1,
+        account_balance: 6500.0
+      },
+      coercion: {
+        amount: 4500.0,
+        avg_amount: 1000.0,
+        recipient_name: "Central Police Escrow Acct 902",
+        recipient_age_hours: 2.0,
+        prior_transfers: 0,
+        transfers_today: 1,
+        account_balance: 5000.0
+      }
+    };
+
+    function loadScenario(type) {
+      document.querySelectorAll('.btn-scenario').forEach(b => b.classList.remove('active-scenario'));
+      event.target.classList.add('active-scenario');
+
+      const data = scenarios[type];
+      document.getElementById('amount').value = data.amount.toFixed(2);
+      document.getElementById('avg_amount').value = data.avg_amount.toFixed(2);
+      document.getElementById('recipient_name').value = data.recipient_name;
+      document.getElementById('recipient_age_hours').value = data.recipient_age_hours.toFixed(1);
+      document.getElementById('prior_transfers').value = data.prior_transfers;
+      document.getElementById('transfers_today').value = data.transfers_today;
+      document.getElementById('account_balance').value = data.account_balance.toFixed(2);
+
+      // Auto-evaluate
+      document.getElementById('submitBtn').click();
+    }
+
+    async function handleEvaluate(e) {
+      if (e) e.preventDefault();
+
+      const payload = {
+        amount: parseFloat(document.getElementById('amount').value),
+        avg_amount: parseFloat(document.getElementById('avg_amount').value),
+        recipient_name: document.getElementById('recipient_name').value,
+        recipient_age_hours: parseFloat(document.getElementById('recipient_age_hours').value),
+        prior_transfers: parseInt(document.getElementById('prior_transfers').value),
+        transfers_today: parseInt(document.getElementById('transfers_today').value),
+        account_balance: parseFloat(document.getElementById('account_balance').value)
+      };
+
+      try {
+        const res = await fetch('/api/evaluate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        renderResults(data);
+      } catch (err) {
+        console.error("Evaluation error:", err);
+      }
+    }
+
+    function renderResults(data) {
+      const score = data.risk_score;
+      const tier = data.risk_tier;
+
+      // Circle & Badge
+      const circle = document.getElementById('scoreCircle');
+      circle.textContent = score.toFixed(1);
+
+      const badge = document.getElementById('tierBadge');
+      badge.textContent = `${tier} RISK TIER`;
+      badge.className = `tier-badge tier-${tier}`;
+
+      if (tier === 'LOW') {
+        circle.style.borderColor = '#198038';
+        circle.style.color = '#198038';
+      } else if (tier === 'MEDIUM') {
+        circle.style.borderColor = '#f1c21b';
+        circle.style.color = '#b28900';
+      } else {
+        circle.style.borderColor = '#da1e28';
+        circle.style.color = '#da1e28';
+      }
+
+      document.getElementById('actionSummary').textContent = data.action_summary;
+
+      // Render Factors
+      const container = document.getElementById('factorsContainer');
+      container.innerHTML = '';
+
+      data.factor_breakdown.forEach(f => {
+        const fillPercent = (f.points_contributed / f.weight_max) * 100;
+        const color = f.is_risk ? '#da1e28' : '#0f62fe';
+        const card = document.createElement('div');
+        card.className = 'factor-card';
+        card.innerHTML = `
+          <div class="factor-header">
+            <span>${f.factor_name}</span>
+            <span class="points-tag ${f.is_risk ? 'points-risk' : 'points-safe'}">
+              +${f.points_contributed} / ${f.weight_max} pts
+            </span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" style="width: ${fillPercent}%; background: ${color};"></div>
+          </div>
+          <div style="font-size: 8.3pt; color: #525252; margin-top: 4px;">${f.explanation}</div>
+        `;
+        container.appendChild(card);
+      });
+
+      // Show modal if High Risk
+      if (tier === 'HIGH' && data.intervention) {
+        document.getElementById('safetyModal').style.display = 'flex';
+      }
+    }
+
+    function closeModal(wasCancelled) {
+      document.getElementById('safetyModal').style.display = 'none';
+      if (wasCancelled) {
+        alert("Transfer cancelled successfully. Your funds remain safe in your account.");
+      }
+    }
+
+    // Fetch live system platform info
+    async function loadSystemInfo() {
+      try {
+        const res = await fetch('/api/system-info');
+        const info = await res.json();
+        document.getElementById('platformText').textContent = `IBM LinuxONE (${info.architecture}) • ${info.service_status}`;
+      } catch (err) {
+        console.log("Using default platform label");
+      }
+    }
+
+    window.onload = () => {
+      loadSystemInfo();
+      handleEvaluate();
+    };
+  </script>
+</body>
+</html>
