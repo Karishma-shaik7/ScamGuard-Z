@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ScamGuard-Z Revised Technical Solution & Design Document</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 18mm 16mm 18mm 16mm;
+      @bottom-right {
+        content: "Page " counter(page);
+        font-family: 'Segoe UI', Arial, sans-serif;
+        font-size: 8pt;
+        color: #717171;
+      }
+      @bottom-left {
+        content: "ScamGuard-Z • IBM Z Datathon 2026 Technical Design Report";
+        font-family: 'Segoe UI', Arial, sans-serif;
+        font-size: 8pt;
+        color: #717171;
+      }
+    }
+
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+      color: #1a1a1a;
+      background: #ffffff;
+      line-height: 1.55;
+      font-size: 9.8pt;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Cover Page Styling */
+    .cover-page {
+      height: 96vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      page-break-after: always;
+      box-sizing: border-box;
+      padding: 20px 10px;
+    }
+    .cover-top-stripe {
+      height: 6px;
+      background: linear-gradient(90deg, #0f62fe 0%, #002d9c 100%);
+      border-radius: 3px;
+      margin-bottom: 25px;
+    }
+    .cover-badge {
+      display: inline-block;
+      background: #edf5ff;
+      color: #0043ce;
+      font-size: 9pt;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 4px;
+      border: 1px solid #d0e2ff;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      margin-bottom: 15px;
+    }
+    .cover-title {
+      font-size: 28pt;
+      color: #001141;
+      font-weight: 800;
+      line-height: 1.15;
+      margin: 0 0 12px 0;
+      letter-spacing: -0.5px;
+    }
+    .cover-subtitle {
+      font-size: 13pt;
+      color: #393939;
+      font-weight: 400;
+      line-height: 1.4;
+      margin-bottom: 30px;
+    }
+    .cover-metadata-card {
+      background: #f4f7fb;
+      border: 1px solid #dde1e6;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-top: 15px;
+    }
+    .cover-meta-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 9.5pt;
+    }
+    .cover-meta-table td {
+      padding: 6px 4px;
+      vertical-align: top;
+    }
+    .cover-meta-label {
+      font-weight: 700;
+      color: #002d9c;
+      width: 28%;
+    }
+    .cover-footer {
+      border-top: 1px solid #e0e0e0;
+      padding-top: 14px;
+      font-size: 8.5pt;
+      color: #697077;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* Common Typography & Layout */
+    h1 {
+      font-size: 16pt;
+      color: #001141;
+      font-weight: 700;
+      margin: 22px 0 10px 0;
+      border-bottom: 2px solid #0f62fe;
+      padding-bottom: 4px;
+    }
+    h2 {
+      font-size: 12pt;
+      color: #002d9c;
+      font-weight: 700;
+      margin: 16px 0 6px 0;
+    }
+    h3 {
+      font-size: 10.5pt;
+      color: #121619;
+      font-weight: 600;
+      margin: 12px 0 4px 0;
+    }
+    p {
+      margin: 0 0 8px 0;
+      text-align: justify;
+    }
+    ul, ol {
+      margin: 4px 0 10px 20px;
+      padding: 0;
+    }
+    li {
+      margin-bottom: 3px;
+    }
+
+    /* Callout & Cards */
+    .callout {
+      background: #fbfdff;
+      border: 1px solid #d0e2ff;
+      border-left: 4.5px solid #0f62fe;
+      padding: 10px 14px;
+      border-radius: 4px;
+      margin: 10px 0 12px 0;
+      font-size: 9.4pt;
+    }
+    .callout-title {
+      font-weight: 700;
+      color: #002d9c;
+      margin-bottom: 4px;
+      display: block;
+    }
+    .grid-2 {
+      display: flex;
+      gap: 12px;
+      margin: 10px 0;
+    }
+    .card {
+      flex: 1;
+      background: #ffffff;
+      border: 1px solid #dde1e6;
+      border-radius: 6px;
+      padding: 10px 12px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    }
+    .card-header {
+      font-weight: 700;
+      color: #002d9c;
+      font-size: 9.8pt;
+      margin-bottom: 4px;
+    }
+
+    /* Tables */
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 14px 0;
+      font-size: 8.8pt;
+    }
+    table.data-table th {
+      background: #0f62fe;
+      color: #ffffff;
+      text-align: left;
+      padding: 7px 10px;
+      font-weight: 600;
+    }
+    table.data-table td {
+      padding: 6px 10px;
+      border-bottom: 1px solid #e0e0e0;
+      vertical-align: top;
+      color: #21272a;
+    }
+    table.data-table tr:nth-child(even) td {
+      background: #f8fafd;
+    }
+
+    /* Table of Contents */
+    .toc-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 20px 0;
+      font-size: 9.5pt;
+    }
+    .toc-table td {
+      padding: 6px 4px;
+      border-bottom: 1px dotted #c1c7cd;
+    }
+    .toc-section {
+      font-weight: 600;
+      color: #002d9c;
+    }
+    .toc-page {
+      text-align: right;
+      color: #525252;
+      font-weight: 600;
+    }
+
+    /* Diagram Containers */
+    .diagram-container {
+      text-align: center;
+      margin: 12px 0 16px 0;
+      padding: 12px;
+      background: #f8fafc;
+      border: 1px solid #dde1e6;
+      border-radius: 6px;
+    }
+    .diagram-caption {
+      font-size: 8.2pt;
+      color: #525252;
+      font-style: italic;
+      margin-top: 6px;
+    }
+
+    /* Page Breaks */
+    .page-break {
+      page-break-before: always;
+    }
+    .avoid-break {
+      break-inside: avoid;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== COVER PAGE ==================== -->
+  <div class="cover-page">
+    <div>
+      <div class="cover-top-stripe"></div>
+      <span class="cover-badge">IBM Z Datathon 2026 • Technical Solution & Design Document</span>
+      <h1 class="cover-title">ScamGuard-Z</h1>
+      <div class="cover-subtitle">
+        An Explainable Risk-Scoring and Safety Warning Prototype for Mitigating Social Engineering and Coercion-Related Transaction Fraud
+      </div>
+
+      <div class="cover-metadata-card">
+        <table class="cover-meta-table">
+          <tr>
+            <td class="cover-meta-label">Selected Track:</td>
+            <td><strong>Theme 1: Real-Time AI for Critical Decisions</strong></td>
+          </tr>
+          <tr>
+            <td class="cover-meta-label">Cross-Cutting Focus:</td>
+            <td><strong>Theme 2: AI Secured — Innovation Without Exposure</strong></td>
+          </tr>
+          <tr>
+            <td class="cover-meta-label">Target Architecture:</td>
+            <td>IBM Z / LinuxONE Community Cloud (Target for Exploration & Validation)</td>
+          </tr>
+          <tr>
+            <td class="cover-meta-label">Project Team Scope:</td>
+            <td>Six-Member Undergraduate Team (Beginner-Friendly, Realistic Implementation)</td>
+          </tr>
+          <tr>
+            <td class="cover-meta-label">Project Status:</td>
+            <td>Technical Design Specification & Prototype Architecture</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <div>
+      <div class="callout" style="margin-top: 25px;">
+        <span class="callout-title">Core Problem Statement</span>
+        Victims of social engineering scams may authorise fraudulent bank transfers themselves under pressure or deception. Traditional transaction checks may not identify these coercion-related risks, allowing victims to lose their savings. ScamGuard-Z analyses simulated transactions, identifies suspicious patterns, explains its risk assessment, and displays an educational safety warning encouraging users to pause and verify the recipient.
+      </div>
+
+      <div class="cover-footer">
+        <span>IBM Z Datathon 2026 • Team Submission Proposal</span>
+        <span>October 2026</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TABLE OF CONTENTS & EXEC SUMMARY ==================== -->
+  <div>
+    <h1>Table of Contents</h1>
+    <table class="toc-table">
+      <tr>
+        <td class="toc-section">1. Executive Summary</td>
+        <td class="toc-page">Page 2</td>
+      </tr>
+      <tr>
+        <td class="toc-section">2. Problem Statement & Project Objectives</td>
+        <td class="toc-page">Page 2</td>
+      </tr>
+      <tr>
+        <td class="toc-section">3. Proposed Solution & Core Prototype Features</td>
+        <td class="toc-page">Page 3</td>
+      </tr>
+      <tr>
+        <td class="toc-section">4. System Architecture & Workflow</td>
+        <td class="toc-page">Page 4</td>
+      </tr>
+      <tr>
+        <td class="toc-section">5. Technology Stack & IBM Z / LinuxONE Exploration</td>
+        <td class="toc-page">Page 5</td>
+      </tr>
+      <tr>
+        <td class="toc-section">6. Data Strategy & Synthetic Dataset Generation</td>
+        <td class="toc-page">Page 5</td>
+      </tr>
+      <tr>
+        <td class="toc-section">7. AI & Risk Scoring Methodology</td>
+        <td class="toc-page">Page 6</td>
+      </tr>
+      <tr>
+        <td class="toc-section">8. Evaluation Plan & Target Metrics</td>
+        <td class="toc-page">Page 6</td>
+      </tr>
+      <tr>
+        <td class="toc-section">9. Privacy, Security & Ethical Considerations</td>
+        <td class="toc-page">Page 7</td>
+      </tr>
+      <tr>
+        <td class="toc-section">10. Implementation Roadmap (Datathon Timeline)</td>
+        <td class="toc-page">Page 7</td>
+      </tr>
+      <tr>
+        <td class="toc-section">11. Six-Member Team Plan & Responsibilities</td>
+        <td class="toc-page">Page 8</td>
+      </tr>
+      <tr>
+        <td class="toc-section">12. Limitations & Future Scope</td>
+        <td class="toc-page">Page 8</td>
+      </tr>
+      <tr>
+        <td class="toc-section">13. References & Conclusion</td>
+        <td class="toc-page">Page 8</td>
+      </tr>
+    </table>
+
+    <h1>1. Executive Summary</h1>
+    <p>
+      In digital retail banking, Authorized Push Payment (APP) scams and psychological coercion—such as callers impersonating law enforcement officers ("digital arrest" scams), tax inspectors, or distressed family members—manipulate victims into voluntarily transferring their funds to fraudulent accounts. Because the genuine account holder inputs their legitimate PIN, password, and two-factor authentication, traditional banking fraud controls that look for account takeovers often fail to detect that the user is acting under duress or deception.
+    </p>
+    <p>
+      <strong>ScamGuard-Z</strong> is a lightweight, explainable transaction analysis prototype designed to address this vulnerability. Built specifically as a manageable, beginner-friendly project for a team of six students, ScamGuard-Z evaluates simulated transactions, detects combinations of suspicious factors (such as uncharacteristic amounts, unfamiliar recipients, transfer velocity, and high balance depletion ratios), categorizes transfers into <strong>Low, Medium, or High</strong> risk tiers, provides a clear human-readable rationale, and presents an educational safety warning encouraging users to pause and verify the transaction before execution.
+    </p>
+    <p>
+      The project uses 100% synthetic transaction data to protect privacy, prioritizes a clear rule-based scoring baseline, includes an optional machine-learning extension if time permits, and targets the <strong>IBM LinuxONE Community Cloud (s390x)</strong> to explore containerized deployment on enterprise mainframe architecture.
+    </p>
+
+    <h1>2. Problem Statement & Project Objectives</h1>
+    <h2>2.1 The Vulnerability of Authorized Coercion</h2>
+    <p>
+      Traditional banking fraud detection architectures are primarily engineered to prevent unauthorized access (e.g., credential stuffing, malware, or logins from unknown devices and unrecognized foreign IP addresses). However, social engineering attacks exploit the human element rather than technical system vulnerabilities. Scammers use high-pressure tactics, fabricated urgency, and fear to convince account holders to drain their savings accounts voluntarily. Because the legitimate account owner initiates and authorizes the transaction, conventional rule filters often treat the transfer as standard behavior.
+    </p>
+    
+    <h2>2.2 Realistic Nuance: Suspicious Does Not Equal Scam</h2>
+    <p>
+      A foundational design principle of ScamGuard-Z is acknowledging that <strong>not every unusual transaction is a scam</strong>. Consumers frequently execute legitimate high-value or unfamiliar transfers—such as purchasing an automobile, making a home deposit, or sending money to a newly contracted service provider. Claiming that every anomaly is criminal would result in unacceptable user friction and false alarms. Therefore, ScamGuard-Z is not designed to unilaterally block accounts or prove psychological duress; rather, it serves as an <strong>informative, explainable advisory check</strong> that prompts users to pause and double-check when multiple risk indicators converge.
+    </p>
+
+    <h2>2.3 Core Project Objectives</h2>
+    <ul>
+      <li><strong>Objective 1:</strong> Construct a clean web simulation interface allowing users and evaluators to input mock payment details.</li>
+      <li><strong>Objective 2:</strong> Develop an explainable risk-scoring engine evaluating four observable transaction factors.</li>
+      <li><strong>Objective 3:</strong> Categorize risk into Low, Medium, and High tiers accompanied by clear explanations.</li>
+      <li><strong>Objective 4:</strong> Implement an empathetic safety intervention modal providing practical verification steps.</li>
+      <li><strong>Objective 5:</strong> Explore an optional Scikit-Learn machine-learning extension to benchmark against the rule-based engine.</li>
+      <li><strong>Objective 6:</strong> Explore packaging the backend into a container and deploying it on the IBM LinuxONE Community Cloud.</li>
+    </ul>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- ==================== PROPOSED SOLUTION ==================== -->
+  <div>
+    <h1>3. Proposed Solution & Core Prototype Features</h1>
+    <p>
+      To deliver a realistic, technically meaningful project within the 24-hour datathon timeframe, ScamGuard-Z focuses on a structured five-component prototype:
+    </p>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header">1. Simulation & Input Interface</div>
+        <p style="font-size: 8.8pt; margin: 0;">
+          A simple web form enabling users to test simulated transactions by inputting payment parameters: transfer amount, account balance prior to payment, transfer frequency in the last 24 hours, and whether the recipient is newly added or previously verified.
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-header">2. Explainable Risk-Scoring Engine</div>
+        <p style="font-size: 8.8pt; margin: 0;">
+          A deterministic baseline engine that calculates a composite Risk Score (0–100) based on transparent, inspectable mathematical weights across four key detection factors, ensuring total auditability and zero black-box obscurity.
+        </p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header">3. Tiered Risk Assessment</div>
+        <p style="font-size: 8.8pt; margin: 0;">
+          Classifies each simulated transfer into actionable categories:
+          <br>• <strong>Low Risk (0–39):</strong> Routine characteristics; standard proceed confirmation.
+          <br>• <strong>Medium Risk (40–69):</strong> Isolated unusual attribute; gentle advisory note.
+          <br>• <strong>High Risk (70–100):</strong> Multiple compounding risk factors; prominent safety warning.
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-header">4. Practical Safety Warning Modal</div>
+        <p style="font-size: 8.8pt; margin: 0;">
+          Instead of abrupt account locks, High-Risk transfers trigger a clear educational dialog:
+          <br>• <em>"Are you on the phone with someone telling you to send this urgently?"</em>
+          <br>• <em>"Did the caller claim to be police, tax staff, or bank fraud security?"</em>
+          <br>• Practical verification checklist and one-click "Cancel & Review" option.
+        </p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <span class="callout-title">5. Optional Machine Learning Extension (Time & Data Permitting)</span>
+      As an extension exercise, the team plans to implement a secondary machine-learning classifier (e.g., Logistic Regression or Random Forest using Python's Scikit-Learn) trained on synthetic transaction logs to compare predictive risk probabilities against the rule-based baseline.
+    </div>
+
+    <h2>3.1 Key Detection Factors Evaluated</h2>
+    <p>The prototype evaluates four observable transaction signals commonly seen in social engineering scenarios:</p>
+
+    <table class="data-table">
+      <tr>
+        <th style="width: 25%;">Detection Factor</th>
+        <th style="width: 45%;">Description & Rationale</th>
+        <th style="width: 30%;">Simulated Risk Indicator</th>
+      </tr>
+      <tr>
+        <td><strong>1. Atypical Transfer Amount</strong></td>
+        <td>Compares transfer value against the account's synthetic historical median transfer size.</td>
+        <td>Transfer value exceeds 3× to 5× the account's historical average.</td>
+      </tr>
+      <tr>
+        <td><strong>2. Unfamiliar Recipient Status</strong></td>
+        <td>Evaluates whether the recipient account is previously established or newly created.</td>
+        <td>Beneficiary added within the past 24 hours with zero previous payment history.</td>
+      </tr>
+      <tr>
+        <td><strong>3. Transfer Velocity (Frequency)</strong></td>
+        <td>Monitors repeated outbound transfers occurring within a compressed timeframe.</td>
+        <td>Multiple outbound transfers executed within minutes or hours of each other.</td>
+      </tr>
+      <tr>
+        <td><strong>4. Account Depletion Ratio</strong></td>
+        <td>Measures what percentage of total liquid balance is being transferred out in one session.</td>
+        <td>Single transaction attempts to drain 75% to 95% of available funds.</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- ==================== SYSTEM ARCHITECTURE & WORKFLOW ==================== -->
+  <div>
+    <h1>4. System Architecture & Workflow</h1>
+    <p>
+      The architecture of ScamGuard-Z separates the frontend presentation, backend scoring services, and deployment target to ensure clean modularity and straightforward testing for beginner developers.
+    </p>
+
+    <h2>4.1 System Architecture Diagram</h2>
+    <div class="diagram-container">
+      <svg width="680" height="150" viewBox="0 0 680 150" style="max-width: 100%; font-family: Segoe UI, sans-serif;">
+        <!-- Client Layer -->
+        <rect x="15" y="25" width="125" height="100" rx="6" fill="#f4f7fb" stroke="#0f62fe" stroke-width="1.8"/>
+        <text x="77" y="52" font-size="11" font-weight="700" text-anchor="middle" fill="#001141">Simulation UI</text>
+        <text x="77" y="70" font-size="8.5" text-anchor="middle" fill="#525252">Web / HTML Client</text>
+        <text x="77" y="87" font-size="8" text-anchor="middle" fill="#0043ce">• Transaction Form</text>
+        <text x="77" y="102" font-size="8" text-anchor="middle" fill="#0043ce">• Safety Warning Dialog</text>
+
+        <!-- Arrow 1 -->
+        <path d="M 140 75 L 180 75" stroke="#0f62fe" stroke-width="1.8" marker-end="url(#arrow)"/>
+        <text x="160" y="68" font-size="7.5" text-anchor="middle" fill="#525252">JSON / REST</text>
+
+        <!-- Backend Boundary -->
+        <rect x="190" y="15" width="310" height="120" rx="8" fill="#edf5ff" stroke="#0043ce" stroke-width="1.8" stroke-dasharray="4,2"/>
+        <text x="345" y="32" font-size="9.5" font-weight="700" text-anchor="middle" fill="#002d9c">FastAPI Backend Service (Target: LinuxONE / s390x Container)</text>
+
+        <!-- Feature Extractor -->
+        <rect x="205" y="45" width="85" height="75" rx="5" fill="#ffffff" stroke="#0f62fe" stroke-width="1.2"/>
+        <text x="247" y="65" font-size="9" font-weight="700" text-anchor="middle" fill="#001141">Feature</text>
+        <text x="247" y="78" font-size="9" font-weight="700" text-anchor="middle" fill="#001141">Extractor</text>
+        <text x="247" y="94" font-size="7" text-anchor="middle" fill="#525252">Velocity, Ratios,</text>
+        <text x="247" y="105" font-size="7" text-anchor="middle" fill="#525252">Recipient Age</text>
+
+        <!-- Arrow inside backend -->
+        <path d="M 290 82 L 315 82" stroke="#0043ce" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+        <!-- Scoring Engine -->
+        <rect x="325" y="45" width="85" height="75" rx="5" fill="#ffffff" stroke="#0f62fe" stroke-width="1.2"/>
+        <text x="367" y="65" font-size="9" font-weight="700" text-anchor="middle" fill="#001141">Risk Engine</text>
+        <text x="367" y="79" font-size="7.5" text-anchor="middle" fill="#0072c3">Rule Baseline</text>
+        <text x="367" y="93" font-size="7" text-anchor="middle" fill="#525252">Optional ML</text>
+        <text x="367" y="106" font-size="7.5" font-weight="600" text-anchor="middle" fill="#da1e28">Score (0-100)</text>
+
+        <!-- Arrow inside backend 2 -->
+        <path d="M 410 82 L 425 82" stroke="#0043ce" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+        <!-- Explanation Generator -->
+        <rect x="430" y="45" width="60" height="75" rx="5" fill="#ffffff" stroke="#0043ce" stroke-width="1.2"/>
+        <text x="460" y="65" font-size="8" font-weight="700" text-anchor="middle" fill="#001141">Reasoning</text>
+        <text x="460" y="78" font-size="8" font-weight="700" text-anchor="middle" fill="#001141">Generator</text>
+        <text x="460" y="96" font-size="7" text-anchor="middle" fill="#525252">Text Explanations</text>
+
+        <!-- Arrow 3 -->
+        <path d="M 500 75 L 535 75" stroke="#0f62fe" stroke-width="1.8" marker-end="url(#arrow)"/>
+        <text x="518" y="68" font-size="7.5" text-anchor="middle" fill="#525252">Response</text>
+
+        <!-- Output Action -->
+        <rect x="545" y="25" width="120" height="100" rx="6" fill="#f4f7fb" stroke="#198038" stroke-width="1.8"/>
+        <text x="605" y="52" font-size="10.5" font-weight="700" text-anchor="middle" fill="#001141">Intervention</text>
+        <text x="605" y="72" font-size="8" text-anchor="middle" fill="#198038">✓ Low: Normal</text>
+        <text x="605" y="87" font-size="8" text-anchor="middle" fill="#f1c21b">⚠ Med: Advisory</text>
+        <text x="605" y="102" font-size="8" text-anchor="middle" fill="#da1e28">🚨 High: Safety Modal</text>
+      </svg>
+      <div class="diagram-caption">Figure 1: High-level ScamGuard-Z architecture from simulated input to risk output.</div>
+    </div>
+
+    <h2>4.2 Risk Assessment Workflow</h2>
+    <div class="diagram-container">
+      <svg width="680" height="110" viewBox="0 0 680 110" style="max-width: 100%; font-family: Segoe UI, sans-serif;">
+        <!-- Step 1 -->
+        <rect x="10" y="30" width="115" height="55" rx="5" fill="#f4f7fb" stroke="#0f62fe" stroke-width="1.2"/>
+        <text x="67" y="52" font-size="9" font-weight="700" text-anchor="middle" fill="#001141">1. Submit Data</text>
+        <text x="67" y="68" font-size="7.5" text-anchor="middle" fill="#525252">Amount, Recipient, Balance</text>
+
+        <!-- Arrow -->
+        <path d="M 125 57 L 155 57" stroke="#0f62fe" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+        <!-- Step 2 -->
+        <rect x="160" y="30" width="115" height="55" rx="5" fill="#ffffff" stroke="#0043ce" stroke-width="1.2"/>
+        <text x="217" y="52" font-size="9" font-weight="700" text-anchor="middle" fill="#001141">2. Extract Features</text>
+        <text x="217" y="68" font-size="7.5" text-anchor="middle" fill="#525252">Velocity, Depletion Ratio</text>
+
+        <!-- Arrow -->
+        <path d="M 275 57 L 305 57" stroke="#0f62fe" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+        <!-- Step 3 -->
+        <rect x="310" y="30" width="115" height="55" rx="5" fill="#ffffff" stroke="#0043ce" stroke-width="1.2"/>
+        <text x="367" y="52" font-size="9" font-weight="700" text-anchor="middle" fill="#001141">3. Compute Score</text>
+        <text x="367" y="68" font-size="7.5" text-anchor="middle" fill="#525252">Weighted Formula (0-100)</text>
+
+        <!-- Arrow -->
+        <path d="M 425 57 L 455 57" stroke="#0f62fe" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+        <!-- Step 4 -->
+        <rect x="460" y="30" width="105" height="55" rx="5" fill="#ffffff" stroke="#0043ce" stroke-width="1.2"/>
+        <text x="512" y="52" font-size="9" font-weight="700" text-anchor="middle" fill="#001141">4. Classify Tier</text>
+        <text x="512" y="68" font-size="7.5" text-anchor="middle" fill="#525252">Low / Medium / High</text>
+
+        <!-- Arrow -->
+        <path d="M 565 57 L 590 57" stroke="#0f62fe" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+        <!-- Step 5 -->
+        <rect x="595" y="30" width="75" height="55" rx="5" fill="#edf5ff" stroke="#0f62fe" stroke-width="1.5"/>
+        <text x="632" y="52" font-size="8.5" font-weight="700" text-anchor="middle" fill="#001141">5. Action</text>
+        <text x="632" y="68" font-size="7" text-anchor="middle" fill="#002d9c">Explain + Modal</text>
+      </svg>
+      <div class="diagram-caption">Figure 2: Sequential transaction evaluation and decision workflow.</div>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- ==================== TECH STACK & DATASETS ==================== -->
+  <div>
+    <h1>5. Technology Stack & IBM Z / LinuxONE Exploration</h1>
+    <p>
+      Given that all six team members are beginners, the technology stack is intentionally selected for simplicity, active open-source documentation, and ease of debugging.
+    </p>
+
+    <table class="data-table">
+      <tr>
+        <th style="width: 20%;">Technology</th>
+        <th style="width: 25%;">Component</th>
+        <th style="width: 55%;">Purpose & Beginner-Friendly Rationale</th>
+      </tr>
+      <tr>
+        <td><strong>Python 3.x</strong></td>
+        <td>Core Programming Language</td>
+        <td>Universal, highly readable language; rapid development; extensive library ecosystem for data processing and web services.</td>
+      </tr>
+      <tr>
+        <td><strong>FastAPI</strong></td>
+        <td>Backend REST API</td>
+        <td>Modern, lightweight web framework; straightforward routing; native data validation with Pydantic; auto-generated interactive documentation (/docs).</td>
+      </tr>
+      <tr>
+        <td><strong>HTML5 / CSS3 / JS</strong></td>
+        <td>Frontend Web Simulation</td>
+        <td>Zero framework overhead (no complex React/Angular build chains); easy to construct a clean transaction input form and alert modal.</td>
+      </tr>
+      <tr>
+        <td><strong>Pandas & NumPy</strong></td>
+        <td>Data Generation & Analysis</td>
+        <td>Industry standard for generating, structuring, and filtering synthetic tabular transaction data and calculating statistical baselines.</td>
+      </tr>
+      <tr>
+        <td><strong>Scikit-Learn (Optional)</strong></td>
+        <td>Machine Learning Extension</td>
+        <td>Accessible library for testing simple tabular models (Logistic Regression or Random Forest) if time allows during the hackathon.</td>
+      </tr>
+      <tr>
+        <td><strong>IBM LinuxONE (Target)</strong></td>
+        <td>Cloud Deployment Exploration</td>
+        <td><strong>Exploration Goal:</strong> Package the FastAPI backend as a container (Docker/Podman) and explore deploying/validating on an enterprise s390x Linux virtual machine via LinuxONE Community Cloud.</td>
+      </tr>
+    </table>
+
+    <div class="callout">
+      <span class="callout-title">Deployment Target Clarification</span>
+      IBM Z / LinuxONE Community Cloud represents an <strong>active exploration target</strong> for our team to validate during the datathon, not a completed production deployment. Our objective is to learn how enterprise mainframes handle containerized microservices and compare local execution with s390x virtualized environments.
+    </div>
+
+    <h1>6. Data Strategy & Synthetic Dataset Generation</h1>
+    <h2>6.1 Synthetic Transaction Data as the Primary Source</h2>
+    <p>
+      Connecting to real bank APIs or collecting actual customer financial records poses severe privacy, legal, and ethical risks. Furthermore, genuine coercion and scam transactions are rarely labeled in public datasets due to bank confidentiality. Therefore, <strong>ScamGuard-Z uses 100% synthetically generated transaction data as its primary foundation</strong>.
+    </p>
+    <p>
+      Using a Python script, our team will generate synthetic datasets representing simulated account histories and payment requests:
+    </p>
+    <ul>
+      <li><strong>Normal Simulated Patterns:</strong> Routine transactions reflecting historical behaviors—modest transfer amounts (e.g., $20 to $150), recurring familiar recipients (e.g., utility providers, saved contacts), low transaction frequency (1–2 per day), and small account depletion ratios (<15%).</li>
+      <li><strong>Suspicious Simulated Scenarios:</strong> Parameterized to mimic common social engineering patterns—sudden high-value transfers ($2,000+), newly registered recipient accounts (<24 hours old), multiple transfers in rapid succession, and transactions that liquidate >80% of available account funds.</li>
+    </ul>
+
+    <h2>6.2 Critical Distinction: Simulated Risk vs. Verified Fraud</h2>
+    <div class="highlight-box" style="background: #fff8e1; border-left: 4px solid #f1c21b; padding: 10px; margin: 8px 0; font-size: 9pt;">
+      <strong>Academic & Technical Rigor:</strong> Labels in our dataset indicate <em>simulated risk profiles</em> based on synthetic behavioral parameters, <strong>not ground-truth criminal convictions</strong>. This distinction prevents circular reasoning and ensures evaluators understand the boundary between heuristic anomaly testing and true real-world fraud forensics.
+    </div>
+
+    <h2>6.3 Exploratory Public Datasets (Subject to Availability & Licensing)</h2>
+    <p>
+      The team will explore publicly accessible financial benchmarks, such as the <strong>Kaggle IEEE-CIS Fraud Detection dataset</strong>, solely as a reference point for feature distributions and tabular structures. Its use will remain strictly subject to dataset availability, download bandwidth constraints during the hackathon, and platform licensing terms.
+    </p>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- ==================== AI METHODOLOGY & EVALUATION ==================== -->
+  <div>
+    <h1>7. AI & Risk Scoring Methodology</h1>
+    <h2>7.1 Rule-Based Baseline Engine (Primary Methodology)</h2>
+    <p>
+      For a team of beginners, starting with a transparent, deterministic rule-based engine ensures reliability, auditability, and immediate explainability. The engine assigns normalized sub-scores (0 to 1) to each of the four detection factors, multiplied by calibrated weights:
+    </p>
+    
+    <div style="background: #f4f7fb; border: 1px solid #d0e2ff; padding: 10px 14px; border-radius: 6px; margin: 8px 0; font-family: monospace; font-size: 8.8pt;">
+      Total_Risk_Score = (W_amt × S_amt) + (W_recip × S_recip) + (W_vel × S_vel) + (W_dep × S_dep)
+      <br><br>
+      Proposed Baseline Weights (Sum = 100):
+      <br>• W_amt (Atypical Amount) = 30 points
+      <br>• W_recip (Unfamiliar Recipient) = 25 points
+      <br>• W_vel (Transfer Velocity) = 25 points
+      <br>• W_dep (Balance Depletion) = 20 points
+    </div>
+
+    <h2>7.2 Explainability Mechanism</h2>
+    <p>
+      Whenever a factor score exceeds its threshold, the engine attaches a human-readable explanation string to the API response. For instance, if a simulated transfer receives a score of 75 (High Risk), the response includes:
+    </p>
+    <ul>
+      <li><em>"Transfer amount is 4.2× higher than your 30-day average."</em></li>
+      <li><em>"Recipient account was added 3 hours ago with zero prior transfer history."</em></li>
+      <li><em>"This transaction transfers 85% of your total account balance."</em></li>
+    </ul>
+
+    <h2>7.3 Optional Machine-Learning Extension</h2>
+    <p>
+      If the baseline engine is completed ahead of schedule, the team will explore training a simple binary classification model (e.g., Scikit-Learn Random Forest or Logistic Regression) using an 80/20 train-test split on synthetic data. This extension is proposed as a comparative learning exercise to analyze whether tree-based decision boundaries align with our rule weights. <em>No pre-trained model is claimed at this stage.</em>
+    </p>
+
+    <h1>8. Evaluation Plan & Proposed Targets</h1>
+    <p>
+      To validate ScamGuard-Z objectively during testing, the team will execute test scenarios across simulated normal, borderline, and high-suspicion transactions. All performance targets are <strong>proposed engineering goals</strong>, not claimed results.
+    </p>
+
+    <table class="data-table">
+      <tr>
+        <th style="width: 22%;">Evaluation Metric</th>
+        <th style="width: 48%;">Description & Purpose</th>
+        <th style="width: 30%;">Proposed Target</th>
+      </tr>
+      <tr>
+        <td><strong>Precision (Simulated)</strong></td>
+        <td>Measures what proportion of high-risk flags were truly intended suspicious scenarios.</td>
+        <td>Proposed Target: &gt; 80% on synthetic test suite</td>
+      </tr>
+      <tr>
+        <td><strong>Recall (Simulated)</strong></td>
+        <td>Measures what proportion of synthetic high-duress scenarios were successfully flagged.</td>
+        <td>Proposed Target: &gt; 85% on synthetic test suite</td>
+      </tr>
+      <tr>
+        <td><strong>False-Positive Rate</strong></td>
+        <td>Measures how often normal, everyday transactions are mistakenly flagged as high risk.</td>
+        <td>Proposed Target: &lt; 15% to minimize user irritation</td>
+      </tr>
+      <tr>
+        <td><strong>API Response Time</strong></td>
+        <td>End-to-end latency from transaction submission to risk score and explanation return.</td>
+        <td>Proposed Target: &lt; 500ms on simulated API calls</td>
+      </tr>
+      <tr>
+        <td><strong>Explanation Clarity</strong></td>
+        <td>Qualitative assessment: Are reasons easily understood by non-technical team members?</td>
+        <td>100% of high-risk outputs provide readable text</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- ==================== PRIVACY, ROADMAP & TEAM PLAN ==================== -->
+  <div>
+    <h1>9. Privacy, Security & Ethical Considerations</h1>
+    <p>
+      Because financial applications handle sensitive human situations, ScamGuard-Z adheres strictly to ethical development practices appropriate for a student hackathon:
+    </p>
+    <ul>
+      <li><strong>Synthetic Data Exclusivity:</strong> The prototype never connects to live banking rails, real bank accounts, or real payment credentials. All names, balances, and account numbers are fictional.</li>
+      <li><strong>Data Minimization:</strong> The engine processes only essential transaction parameters (amount, timestamp delta, recipient status, balance percentage) without capturing or storing personal identifying information (PII).</li>
+      <li><strong>Non-Coercive User Agency:</strong> The system does not freeze accounts permanently. It introduces an intentional cognitive speed-bump, respecting customer autonomy while providing critical safety advice.</li>
+      <li><strong>Absence of Unsubstantiated Claims:</strong> The project does not claim compliance with PCI-DSS or GDPR certification, but adopts privacy-by-design principles suited for a prototype.</li>
+    </ul>
+
+    <h1>10. Implementation Roadmap (24-Hour Datathon Timeline)</h1>
+    <table class="data-table">
+      <tr>
+        <th style="width: 22%;">Phase & Hours</th>
+        <th style="width: 35%;">Key Milestone</th>
+        <th style="width: 43%;">Deliverables & Verification</th>
+      </tr>
+      <tr>
+        <td><strong>Phase 1: Setup & Data<br>(Hours 0–4)</strong></td>
+        <td>Environment preparation & synthetic dataset creation</td>
+        <td>Git repository initialized; Python synthetic generation script written producing 500+ mock records.</td>
+      </tr>
+      <tr>
+        <td><strong>Phase 2: Core Engine<br>(Hours 4–8)</strong></td>
+        <td>Rule-based risk scoring & explanation logic</td>
+        <td>Python functions implementing the four detection factor weights and explanation text generators.</td>
+      </tr>
+      <tr>
+        <td><strong>Phase 3: Backend API<br>(Hours 8–12)</strong></td>
+        <td>FastAPI web service integration</td>
+        <td>Working REST endpoints (`/evaluate-transaction`); interactive testing via Swagger UI (`/docs`).</td>
+      </tr>
+      <tr>
+        <td><strong>Phase 4: Simulation UI<br>(Hours 12–16)</strong></td>
+        <td>Web interface & safety modal dialog</td>
+        <td>Interactive form allowing transaction input; dynamic popup displaying Low/Med/High alerts.</td>
+      </tr>
+      <tr>
+        <td><strong>Phase 5: Testing & ML<br>(Hours 16–20)</strong></td>
+        <td>System testing & optional ML exploration</td>
+        <td>Test suite executed against test scenarios; optional Scikit-Learn model exploration if time permits.</td>
+      </tr>
+      <tr>
+        <td><strong>Phase 6: LinuxONE & Pitch<br>(Hours 20–24)</strong></td>
+        <td>LinuxONE target exploration & demo video</td>
+        <td>Attempt container deployment on LinuxONE Community Cloud; record 3-minute video pitch & finalize repo.</td>
+      </tr>
+    </table>
+
+    <h1>11. Six-Member Team Plan & Responsibilities</h1>
+    <p>
+      To ensure all six beginner team members have clear, manageable responsibilities and contribute meaningfully to the project, roles are structured as follows:
+    </p>
+
+    <table class="data-table">
+      <tr>
+        <th style="width: 18%;">Member Role</th>
+        <th style="width: 25%;">Primary Focus Area</th>
+        <th style="width: 37%;">Key Responsibilities</th>
+        <th style="width: 20%;">Deliverables</th>
+      </tr>
+      <tr>
+        <td><strong>Member 1</strong><br>(Team Lead)</td>
+        <td>Project Coordination & Video Pitch</td>
+        <td>Manages task timelines, organizes documentation, scripts and coordinates the 3-minute presentation video.</td>
+        <td>Project README, presentation script, final video.</td>
+      </tr>
+      <tr>
+        <td><strong>Member 2</strong></td>
+        <td>Synthetic Data & Scenarios</td>
+        <td>Develops the Python script to create synthetic normal and suspicious transaction records; documents test cases.</td>
+        <td>`generate_data.py`, CSV test datasets.</td>
+      </tr>
+      <tr>
+        <td><strong>Member 3</strong></td>
+        <td>Risk Engine & Rules</td>
+        <td>Implements the core scoring logic, mathematical weight distribution, and text explanation generator functions.</td>
+        <td>`risk_engine.py`, rule logic unit tests.</td>
+      </tr>
+      <tr>
+        <td><strong>Member 4</strong></td>
+        <td>Backend API (FastAPI)</td>
+        <td>Develops the FastAPI endpoints, handles JSON request/response validation with Pydantic, connects risk engine.</td>
+        <td>`main.py` API service, Swagger endpoint docs.</td>
+      </tr>
+      <tr>
+        <td><strong>Member 5</strong></td>
+        <td>Simulation UI & Modals</td>
+        <td>Designs the transaction input web form, formats risk tier badges, and builds the safety warning intervention modal.</td>
+        <td>`index.html`, `style.css`, frontend scripts.</td>
+      </tr>
+      <tr>
+        <td><strong>Member 6</strong></td>
+        <td>LinuxONE & Testing QA</td>
+        <td>Explores containerizing the app (Dockerfile), tests endpoints on LinuxONE Community Cloud, logs test metrics.</td>
+        <td>`Dockerfile`, test log summary, LinuxONE notes.</td>
+      </tr>
+    </table>
+    <p style="font-size: 8.5pt; color: #525252; margin-top: 4px;">
+      <em>Shared Team Responsibility: All six members collaborate during Hours 16–20 on integrated end-to-end testing, slide review, and peer rehearsal.</em>
+    </p>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- ==================== LIMITATIONS, REFERENCES & CONCLUSION ==================== -->
+  <div>
+    <h1>12. Limitations & Future Scope</h1>
+    <h2>12.1 Prototype Limitations</h2>
+    <ul>
+      <li><strong>Cannot Prove True Coercion:</strong> A software algorithm operating solely on transaction metadata cannot determine a user's psychological state or verify what is happening off-device on a telephone call.</li>
+      <li><strong>Potential for False Positives:</strong> Legitimate urgent transactions (e.g., medical emergency bill payment) share attributes with coercion fraud (high amounts, urgent timing), leading to advisory warnings on legitimate transfers.</li>
+      <li><strong>Does Not Replace Bank Systems:</strong> ScamGuard-Z is an experimental educational concept designed to augment human awareness, not replace professional fraud departments, human investigators, or established anti-money laundering (AML) controls.</li>
+    </ul>
+
+    <h2>12.2 Future Scope (Post-Datathon Opportunities)</h2>
+    <ul>
+      <li><strong>Multi-Party Verification:</strong> Exploring opt-in "trusted contact" verification where high-risk transactions notify a pre-selected family member for advisory confirmation.</li>
+      <li><strong>Enterprise Mainframe Integration:</strong> Deepening technical validation on IBM Z systems to examine real-time transactional throughput and hardware-level cryptographic services.</li>
+      <li><strong>Ethical Behavioral Biometrics:</strong> Investigating whether ethical, client-side input hesitation patterns (e.g., typing pauses during payee entry) can add non-intrusive safety signals.</li>
+    </ul>
+
+    <h1>13. References</h1>
+    <ol style="font-size: 8.8pt; color: #393939;">
+      <li>
+        <strong>Payment Systems Regulator (PSR), UK.</strong> (2023). <em>Authorised Push Payment (APP) Scams: Policy Statement and Performance Metrics</em>. Available at: https://www.psr.org.uk/
+      </li>
+      <li>
+        <strong>Global Anti-Scam Alliance (GASA).</strong> (2023). <em>The Global State of Scams Report: Consumer Vulnerability and Social Engineering Trends</em>. Available at: https://www.gasa.org/
+      </li>
+      <li>
+        <strong>FastAPI Documentation.</strong> (2024). <em>High Performance Python Web Framework</em>. Tiangolo. Available at: https://fastapi.tiangolo.com/
+      </li>
+      <li>
+        <strong>Pedregosa, F., et al.</strong> (2011). <em>Scikit-learn: Machine Learning in Python</em>. Journal of Machine Learning Research, 12, pp. 2825–2830.
+      </li>
+      <li>
+        <strong>IBM Corporation.</strong> (2024). <em>LinuxONE Community Cloud Documentation and Fast Start Guides</em>. IBM Z Community. Available at: https://community.ibm.com/zsystems/l1cc/
+      </li>
+    </ol>
+
+    <h1>14. Conclusion</h1>
+    <p>
+      ScamGuard-Z approaches the pervasive challenge of social engineering and coercion scams through a realistic, human-centric design. By acknowledging that traditional security filters often miss authorized transactions conducted under duress, the project introduces a transparent, explainable scoring engine that empowers users with a crucial moment of reflection. 
+    </p>
+    <p>
+      Engineered as an achievable and technically meaningful project for a team of six beginner undergraduate students, ScamGuard-Z establishes a solid foundation using Python, FastAPI, and synthetic data, while providing an exciting pathway to explore enterprise mainframe deployment on the IBM LinuxONE Community Cloud.
+    </p>
+
+    <div style="margin-top: 30px; text-align: center; border-top: 1px solid #d0d7de; padding-top: 12px; font-size: 8pt; color: #697077;">
+      ScamGuard-Z Technical Design Report • Prepared for the IBM Z Datathon 2026 • Real-Time AI for Critical Decisions
+    </div>
+  </div>
+
+</body>
+</html>
