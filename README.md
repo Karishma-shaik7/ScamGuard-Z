@@ -102,15 +102,12 @@ s390x
 
 ```text
 scamguard-z/
-├── risk_engine.py           # Core deterministic scoring formula & factor explainers
-├── generate_data.py         # Synthetic dataset generator (600 test cases)
-├── main.py                  # FastAPI REST API running on LinuxONE (s390x)
-├── synthetic_transactions.csv# Generated benchmark dataset
+├── risk_engine.ipynb           # Core deterministic scoring formula & factor explainers
+├── generate_data.ipynb       # Synthetic dataset generator (600 test cases)
+├── main.ipynb                  # FastAPI REST API running on LinuxONE (s390x)
+
 ├── static/
 │   └── index.html           # Interactive web simulation console (IBM Carbon styling)
-├── docs/
-│   ├── ScamGuard-Z_Revised_Technical_Design.pdf  # Comprehensive architecture report
-│   └── ScamGuard-Z_Revised_Technical_Design.md   # Editable design documentation
 └── README.md                # Project documentation
 ```
 
